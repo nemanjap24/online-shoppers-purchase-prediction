@@ -122,3 +122,77 @@ def plot_purchase_rate_by_visitor_type(df: pd.DataFrame) -> pd.DataFrame:
     save_figure("eda_purchase_rate_by_visitor_type.png")
 
     return summary
+
+def plot_bounce_vs_exit_rates(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Analizira odnos između BounceRates i ExitRates.
+    Čuva scatter plot i tabelu korelacija.
+    """
+    data = df[["BounceRates", "ExitRates"]].dropna()
+
+    if len(data) < 2:
+        raise ValueError("Nema dovoljno podataka za analizu korelacije.")
+
+    pearson = data["BounceRates"].corr(
+        data["ExitRates"],
+        method="pearson",
+    )
+
+    spearman = data["BounceRates"].corr(
+        data["ExitRates"],
+        method="spearman",
+    )
+
+    summary = pd.DataFrame(
+        {
+            "relationship": ["BounceRates vs ExitRates"],
+            "sessions": [len(data)],
+            "pearson_correlation": [pearson],
+            "spearman_correlation": [spearman],
+        }
+    )
+
+    tables_dir = PROJECT_ROOT / "results" / "tables"
+    tables_dir.mkdir(parents=True, exist_ok=True)
+
+    summary.to_csv(
+        tables_dir / "eda_bounce_vs_exit_rates.csv",
+        index=False,
+    )
+
+    fig, ax = plt.subplots(figsize=(9, 6))
+
+    ax.scatter(
+        data["BounceRates"],
+        data["ExitRates"],
+        s=12,
+        alpha=0.15,
+        color="steelblue",
+        edgecolors="none",
+        rasterized=True,
+    )
+
+    ax.set_title("Vzťah medzi BounceRates a ExitRates")
+    ax.set_xlabel("BounceRates")
+    ax.set_ylabel("ExitRates")
+
+    ax.text(
+        0.03,
+        0.97,
+        (
+            f"Počet sessions: {len(data):,}\n"
+            f"Pearson r: {pearson:.3f}\n"
+            f"Spearman ρ: {spearman:.3f}"
+        ),
+        transform=ax.transAxes,
+        va="top",
+        bbox={
+            "boxstyle": "round",
+            "facecolor": "white",
+            "alpha": 0.9,
+        },
+    )
+
+    save_figure("eda_bounce_vs_exit_rates.png")
+
+    return summary

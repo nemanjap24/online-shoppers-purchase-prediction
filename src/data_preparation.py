@@ -92,28 +92,35 @@ def find_invalid_rows(df: pd.DataFrame) -> pd.Series:
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Čisti dataset:
-    - uklanja SessionID,
     - uklanja redove sa nevalidnim vrednostima,
-    - popunjava missing vrednosti.
+    - uklanja SessionID i Informational_Duration,
+    - uklanja redove bez ProductRelated_Duration,
+    - nedostajući VisitorType označava kao Unknown.
     """
     cleaned = df.copy()
 
     invalid_mask = find_invalid_rows(cleaned)
     invalid_count = int(invalid_mask.sum())
 
-    print(f"Invalid rows removed: {invalid_count}")
-
     cleaned = cleaned.loc[~invalid_mask].copy()
 
-    if "SessionID" in cleaned.columns:
-        cleaned = cleaned.drop(columns=["SessionID"])
+    print(f"Invalid rows removed: {invalid_count}")
 
-    cleaned["Informational_Duration"] = (
-        cleaned["Informational_Duration"].fillna(0)
+    cleaned = cleaned.drop(
+        columns=["SessionID", "Informational_Duration"]
     )
 
-    cleaned["ProductRelated_Duration"] = (
-        cleaned["ProductRelated_Duration"].fillna(0)
+    missing_duration_count = int(
+        cleaned["ProductRelated_Duration"].isna().sum()
+    )
+
+    cleaned = cleaned.dropna(
+        subset=["ProductRelated_Duration"]
+    ).copy()
+
+    print(
+        "Rows removed due to missing ProductRelated_Duration: "
+        f"{missing_duration_count}"
     )
 
     cleaned["VisitorType"] = (

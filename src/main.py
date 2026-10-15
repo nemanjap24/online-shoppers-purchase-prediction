@@ -1,4 +1,4 @@
-from data_preparation import (
+from src.data_preparation import (
     BOUNDED_COLUMNS,
     DURATION_COLUMNS,
     PAGE_COUNT_COLUMNS,
@@ -23,8 +23,11 @@ def main():
     assert "SessionID" not in df_clean.columns
     assert df_clean.isna().sum().sum() == 0
 
+    assert "Informational_Duration" not in df_clean.columns
+
     for column in DURATION_COLUMNS + PAGE_COUNT_COLUMNS:
-        assert (df_clean[column] >= 0).all()
+        if column in df_clean.columns:
+            assert (df_clean[column] >= 0).all()
 
     for column in BOUNDED_COLUMNS:
         assert ((df_clean[column] >= 0) & (df_clean[column] <= 1)).all()
