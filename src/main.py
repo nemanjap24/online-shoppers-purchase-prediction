@@ -5,6 +5,7 @@ from data_preparation import (
     clean_data,
     inspect_data,
     load_data,
+    save_clean_data,
 )
 
 
@@ -27,6 +28,9 @@ def main():
 
     for column in BOUNDED_COLUMNS:
         assert ((df_clean[column] >= 0) & (df_clean[column] <= 1)).all()
+
+    save_clean_data(df_clean)
+
 
     print("\nData validation passed.")
 

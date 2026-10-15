@@ -5,7 +5,9 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "data" / "online_shoppers.csv"
-
+PROCESSED_DATA_PATH = (
+    PROJECT_ROOT / "data" / "processed" / "online_shoppers_clean.csv"
+)
 
 DURATION_COLUMNS = [
     "Administrative_Duration",
@@ -119,3 +121,17 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return cleaned.reset_index(drop=True)
+
+def save_clean_data(
+    df: pd.DataFrame,
+    path: str | Path = PROCESSED_DATA_PATH,
+) -> None:
+    """
+    Čuva očišćeni dataset kao CSV fajl.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    df.to_csv(path, index=False)
+
+    print(f"Cleaned dataset saved to: {path}")
